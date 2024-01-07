@@ -37,7 +37,7 @@ body { position: relative; }
 
 .page > .header > .back {
     margin-right: 32px;
-    background-image: url(/images/icons/left.png);
+    background-image: url(images/icons/left.png);
 }
 
 .page > .header > .title {
@@ -99,7 +99,7 @@ body { position: relative; }
 /***** Listenseite *****/
 
 #listpage .header {
-  background-image: url(/images/icons/lego_logo.png);
+  background-image: url(images/icons/lego_logo.png);
   background-repeat: no-repeat;
   background-position: center;
 }
@@ -122,10 +122,10 @@ body { position: relative; }
 #playpage .toolbar { display: flex; height:56px; }
 #playpage .toolbar .spacer { flex: 1; }
 #playpage .toolbar .icon { font-size: 40px; cursor: pointer; background: none; border: none; width:48px; height: 48px; margin: 4px; background-repeat: no-repeat; background-position: center; }
-#playpage .toolbar .icon.lines { background-image:url(/images/icons/toggle_lines.png);}
-#playpage .toolbar .icon.ar { background-image:url(/images/icons/xr.png);display:none;}
-#playpage .toolbar .icon.stepup { background-image:url(/images/icons/more.png);}
-#playpage .toolbar .icon.stepdown { background-image:url(/images/icons/less.png);}
+#playpage .toolbar .icon.lines { background-image:url(images/icons/toggle_lines.png);}
+#playpage .toolbar .icon.ar { background-image:url(images/icons/xr.png);display:none;}
+#playpage .toolbar .icon.stepup { background-image:url(images/icons/more.png);}
+#playpage .toolbar .icon.stepdown { background-image:url(images/icons/less.png);}
 
 #playpage .partbar { display: flex; user-select: none; overflow-x: auto; background-color: #cde2ff; min-height: 64px; }
 #playpage .partbar img {
@@ -150,16 +150,16 @@ body { position: relative; }
 /* Siehe https://www.w3.org/TR/webxr-dom-overlays-1/ */
 .aroverlay { display:none; position: absolute; top:0; left:0; right:0; bottom:0; z-index: 100; }
 .aroverlay .icon { background: none; border: none; width:48px; height: 48px; margin: 4px; background-repeat: no-repeat; background-position: center; position: absolute; }
-.aroverlay .icon.back { left: 4px; top: 4px; background-image: url(/images/icons/left.png); }
-.aroverlay .icon.lines { right: 4px; bottom: 196px; background-image:url(/images/icons/toggle_lines.png);}
-.aroverlay .icon.ar { background-image:url(/images/icons/xr.png);display:none;}
-.aroverlay .icon.stepup { right: 4px; bottom: 148px; background-image:url(/images/icons/more.png);}
-.aroverlay .icon.stepdown { right: 52px; bottom: 148px; background-image:url(/images/icons/less.png);}
-.aroverlay .icon.up { right: 52px; bottom: 52px; background-image: url(/images/icons/up.png); }
-.aroverlay .icon.down { right: 52px; bottom: 4px; background-image: url(/images/icons/down.png); }
-.aroverlay .icon.left { left: 8px; bottom: 28px; background-image: url(/images/icons/left.png); }
-.aroverlay .icon.right { left: 100px; bottom: 28px; background-image: url(/images/icons/right.png); }
-.aroverlay .icon.forward { left: 52px; bottom: 52px; background-image: url(/images/icons/forward.png); }
-.aroverlay .icon.backward { left: 52px; bottom: 4px; background-image: url(/images/icons/backward.png); }
-.aroverlay .icon.smaller { right: 100px; bottom: 28px;background-image: url(/images/icons/smaller.png); }
-.aroverlay .icon.bigger { right: 8px; bottom: 28px; background-image: url(/images/icons/bigger.png); }
+.aroverlay .icon.back { left: 4px; top: 4px; background-image: url(images/icons/left.png); }
+.aroverlay .icon.lines { right: 4px; bottom: 196px; background-image:url(images/icons/toggle_lines.png);}
+.aroverlay .icon.ar { background-image:url(images/icons/xr.png);display:none;}
+.aroverlay .icon.stepup { right: 4px; bottom: 148px; background-image:url(images/icons/more.png);}
+.aroverlay .icon.stepdown { right: 52px; bottom: 148px; background-image:url(images/icons/less.png);}
+.aroverlay .icon.up { right: 52px; bottom: 52px; background-image: url(images/icons/up.png); }
+.aroverlay .icon.down { right: 52px; bottom: 4px; background-image: url(images/icons/down.png); }
+.aroverlay .icon.left { left: 8px; bottom: 28px; background-image: url(images/icons/left.png); }
+.aroverlay .icon.right { left: 100px; bottom: 28px; background-image: url(images/icons/right.png); }
+.aroverlay .icon.forward { left: 52px; bottom: 52px; background-image: url(images/icons/forward.png); }
+.aroverlay .icon.backward { left: 52px; bottom: 4px; background-image: url(images/icons/backward.png); }
+.aroverlay .icon.smaller { right: 100px; bottom: 28px;background-image: url(images/icons/smaller.png); }
+.aroverlay .icon.bigger { right: 8px; bottom: 28px; background-image: url(images/icons/bigger.png); }
