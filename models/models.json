@@ -1,26 +1,26 @@
 [
   {
     "id": "10302",
-    "file": "/models/ldraw/10302.ldr",
+    "file": "models/ldraw/10302.ldr",
     "name": "Optimus Prime",
-    "thumbnail": "/images/thumbnails/10302_alt1.webp"
+    "thumbnail": "images/thumbnails/10302_alt1.webp"
   },
   {
     "id": "41395",
-    "file": "/models/ldraw/41395.ldr",
+    "file": "models/ldraw/41395.ldr",
     "name": "Freundschaftsbus",
-    "thumbnail": "/images/thumbnails/41395_alt1.webp"
+    "thumbnail": "images/thumbnails/41395_alt1.webp"
   },
   {
     "id": "60263",
-    "file": "/models/ldraw/60263.ldr",
+    "file": "models/ldraw/60263.ldr",
     "name": "Mini U-Boot",
-    "thumbnail": "/images/thumbnails/60263_alt1.webp"
+    "thumbnail": "images/thumbnails/60263_alt1.webp"
   },
   {
     "id": "76210",
-    "file": "/models/ldraw/76210.ldr",
+    "file": "models/ldraw/76210.ldr",
     "name": "Hulkbuster",
-    "thumbnail": "/images/thumbnails/76210_alt1.webp"
+    "thumbnail": "images/thumbnails/76210_alt1.webp"
   }
 ]
