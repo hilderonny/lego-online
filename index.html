@@ -1,0 +1,50 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <title>Lego</title>
+  <link rel="stylesheet" href="styles/style.css">
+  <script type="module">
+
+    async function init() {
+      document.querySelector('.progressbar').classList.remove('invisible');
+      var models = (await (await fetch("/models/models.json")).json());
+      for (var model of models) {
+        addModelToList(model);
+      }
+      document.querySelector('.progressbar').classList.add('invisible');
+    }
+
+    function addModelToList(model) {
+      var list = document.querySelector('.grid');
+      var el = document.createElement('li');
+      el.setAttribute('id', 'model_' + model.id);
+      el.innerHTML = '<img src="' + model.thumbnail + '"/><h1>' + model.name + '</h1><div>' + model.id + '</div>';
+      el.addEventListener('click', function () {
+        location.href = "playmodel.html?" + model.file;
+      });
+      list.appendChild(el);
+    }
+    
+    window.addEventListener("load", init);
+    
+  </script>
+
+</head>
+
+<body>
+
+  <div class="page" id="listpage">
+    <div class="header"></div>
+    <div class="progressbar invisible"></div>
+    <div class="content">
+      <ul class="grid"></ul>
+    </div>
+  </div>
+
+</body>
+
+</html>

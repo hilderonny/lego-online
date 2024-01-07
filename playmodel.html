@@ -1,0 +1,103 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+  <title>Lego ▶</title>
+  <link rel="stylesheet" href="styles/style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "/scripts/three/three.module.min.js",
+        "three/addons/": "/scripts/three/addons/"
+      }
+    }
+  </script>
+  <script type="module">
+
+    import { Player, SaveGameHelper } from './scripts/player.mjs';
+    
+    var moveStep = 20;
+    var scaleFactor = 2;
+    
+    async function init() {
+      Player.init(document.querySelector('#playpage .canvas'));
+      var modelUrl = location.href.split("?")[1];
+      Player.loadModel(modelUrl, () => {
+        updateStepCounter();
+        document.querySelector("button.stepup").addEventListener("click", stepUp);
+        document.querySelector("button.stepdown").addEventListener("click", stepDown);
+        document.querySelector("button.lines").addEventListener("click", Player.toggleLines);
+        document.querySelector("button.left").addEventListener("click", Player.moveLeft);
+        document.querySelector("button.right").addEventListener("click", Player.moveRight);
+        document.querySelector("button.forward").addEventListener("click", Player.moveForward);
+        document.querySelector("button.backward").addEventListener("click", Player.moveBackward);
+        document.querySelector("button.up").addEventListener("click", Player.moveUp);
+        document.querySelector("button.down").addEventListener("click", Player.moveDown);
+        document.querySelector("button.smaller").addEventListener("click", Player.makeSmaller);
+        document.querySelector("button.bigger").addEventListener("click", Player.makeBigger);
+      });
+    }
+    
+    function updateStepCounter() {
+      document.querySelector(".currentStep").innerHTML = Player.getCurrentStep() + 1;
+      document.querySelector(".numberofsteps").innerHTML = Player.getStepCount();
+    }
+    
+    function stepUp() {
+      Player.stepUp();
+      updateStepCounter();
+    }
+    
+    function stepDown() {
+      Player.stepDown();
+      updateStepCounter();
+    }
+    
+    window.addEventListener('load', init);
+  </script>
+</head>
+
+<body>
+
+  <div class="page" id="playpage">
+    <div class="header">
+      <button class="back" onclick="location.href='index.html'"></button>
+    </div>
+    <div class="progressbar invisible"></div>
+    <div class="content">
+      <div class="canvas"></div>
+      <div class="complete invisible"></div>
+      <div class="stepcounter"><span class="currentstep">Loading ... </span>&nbsp;/&nbsp;<span class="numberofsteps">Please wait</span></div>
+      <div class="partbar"></div>
+      <div class="toolbar">
+        <button class="icon lines"></button>
+        <div class="spacer"></div>
+        <button class="icon ar"></button>
+        <div class="spacer"></div>
+        <button class="icon stepdown"></button>
+        <button class="icon stepup"></button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="aroverlay">
+    <button class="icon back"></button>
+    
+    <button class="icon up"></button>
+    <button class="icon down"></button>
+    <button class="icon left"></button>
+    <button class="icon right"></button>
+    <button class="icon forward"></button>
+    <button class="icon backward"></button>
+
+    <button class="icon smaller"></button>
+    <button class="icon bigger"></button>
+
+  </div>
+
+</body>
+
+</html>
