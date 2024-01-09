@@ -1,5 +1,11 @@
 [
   {
+    "id": "6811",
+    "file": "models/ldraw/6811.ldr",
+    "name": "Pulsar Charger",
+    "thumbnail": "images/thumbnails/6811.png"
+  },
+  {
     "id": "60312",
     "file": "models/ldraw/60312.ldr",
     "name": "Polizeiauto",
