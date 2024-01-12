@@ -24,16 +24,18 @@ let controls; // Oribit Controls zum Festlegen der Initialien Ausrichtung
 let currentStep; // Aktueller Schritt
 let currentModel;
 let showLines = true;
-let partRenderer;
-let partScene;
-let partCamera;
-let partControls;
-var partGroup;
 let moveStep = 20;
 let smallScale = 0.0004;
 let bigScale = 0.01;
+let currentRotation = 0;
 
 let xrSession;
+let xrLocalReferenceSpace;
+let xrHitTestSource;
+let xrHitTestSourceRequested = false;
+let xrRectile;
+let xrModelPlaced = false;
+
 let lDrawLoader;
 let rootGroup;
 let gameControllers;
@@ -71,9 +73,6 @@ const SaveGameHelper = {
     }
     SaveGameHelper.currentSaveGame = {
       step: 0,
-      x: 0,
-      y: -.2,
-      z: -.5,
       scale: 0.0004,
       rotation: 0,
     }
@@ -124,129 +123,36 @@ function fitCameraToCenteredObject(camera, object, offset, orbitControls ) {
 }
 
 function updateModelVisibility() {
-  var partsToShow = [];
-  // Zwei Durchläufe notwendig: 1. Parts extrahieren und rendern, 2. Sichtbarkeit einstellen
+  // Sichtbarkeit abhaenging vom aktuellen Schritt
   currentModel.traverse( c => {
 
     if ( c.isLineSegments ) {
       c.visible = showLines;
     } else if ( c.isGroup ) {
       // Hide objects with building step > gui setting
-      c.visible = true;
-      if (c.userData.isRootPart && c.userData.buildingStep === currentStep + 1) {
-        partsToShow.push(c);
-      }
-    } else if (c.isMesh) {
-      if (!c.userData.originalMaterial) {
-        c.userData.originalMaterial = c.material;
-      } else {
-        c.material = c.userData.originalMaterial;
-      }
-      c.visible = true;
+      c.visible = c.userData.buildingStep <= currentStep;
     }
 
   } );
-  showParts(partsToShow);
-  // Sichtbarkeit abhaenging vom aktuellen Schritt
-  currentModel.traverse( c => {
-
-    if ( c.isLineSegments ) {
-      var showPlaceHolder = c.parent.userData.buildingStep === currentStep + 1;
-      c.visible = showLines && !showPlaceHolder;
-    } else if ( c.isGroup ) {
-      // Hide objects with building step > gui setting
-      c.visible = c.userData.buildingStep <= currentStep + 1;
-    } else if (c.isMesh) {
-      if (!c.userData.originalMaterial) {
-        c.userData.originalMaterial = c.material;
-      } else {
-        c.material = c.userData.originalMaterial;
-      }
-      var showPlaceHolder = c.parent.userData.buildingStep === currentStep + 1;
-      c.visible = c.parent.userData.buildingStep <= currentStep || showPlaceHolder;
-      if (showPlaceHolder) {
-        c.material = placeHolderMeshMaterial;
-      }
-    }
-
-  } );
-}
-
-function initPartRenderers() {
-  var partBar = document.querySelector(".partBar");
-  partScene = new THREE.Scene();
-  partScene.background = new THREE.Color(0xE6F1FF);
-  partCamera = new THREE.PerspectiveCamera(45, 1, .001, 1000);
-  partCamera.position.set(100, 100, 100);
-  partCamera.aspect = 48 / 48;
-  partCamera.updateProjectionMatrix();
-  // Umgebungslicht
-  partScene.add(new THREE.AmbientLight(0x222222));
-  // Taschenlampe
-  var pointLight = new THREE.PointLight(0xffffff, 4, 0, 0);
-  pointLight.position.set(0, 0, 0);
-  partCamera.add(pointLight);
-  partScene.add(partCamera);
-  partGroup = new THREE.Group();
-  partScene.add(partGroup);
-    // Thumbnail Renderer
-  var partCanvas = document.createElement('canvas');
-  partCanvas.width = 256;
-  partCanvas.height = 256;
-  partRenderer = new THREE.WebGLRenderer({ canvas: partCanvas, antialias: true, preserveDrawingBuffer: true });
-  partRenderer.setSize(256, 256);
-  partControls = new OrbitControls(partCamera, partRenderer.domElement);
-  partControls.enableDamping = true;
-  partControls.dampingFactor = 0.25;
-  partControls.rotateSpeed = 0.4;
-  partControls.panSpeed = 0.4;
-  partControls.screenSpacePanning = true;
-  partControls.minDistance = 2;
-  partControls.maxDistance = 100;
-}
-
-function partClicked(evt) {
-  console.log(evt);
-}
-
-async function showParts(parts) {
-  var partBar = document.querySelector(".partbar");
-  partBar.innerHTML = "";
-  for (var i = 0; i < parts.length; i++) {
-    var part = parts[i].clone();
-    part.position.set(0, 0, 0);
-    part.rotation.x = Math.PI;
-    partGroup.clear();
-    partGroup.add(part);
-    partCamera.lookAt(part);
-    fitCameraToCenteredObject(partCamera, part, 0, partControls);
-    partControls.update();
-    partRenderer.render(partScene, partCamera);
-    var data = partRenderer.domElement.toDataURL('image/jpeg');
-    var img = document.createElement("img");
-    img.src = data;
-    partBar.appendChild(img);
-  }
 }
 
 function initXRControllers() {
   const controllerModelFactory = new XRControllerModelFactory();
   gameControllers = [0,1].map(function (index) {
-      const controller = renderer.xr.getController(index);
-      controller.addEventListener("connected", (e) => {
-        controller.gamepad = e.data.gamepad;
-        controller.controllerGrip = renderer.xr.getControllerGrip(index);
-        const model = controllerModelFactory.createControllerModel(controller.controllerGrip);
-        controller.controllerGrip.add(model);
-        threeScene.add(controller.controllerGrip);
-      });
-      return controller;
+    const controller = renderer.xr.getController(index);
+    controller.addEventListener("connected", (e) => {
+      controller.gamepad = e.data.gamepad;
+      controller.controllerGrip = renderer.xr.getControllerGrip(index);
+      const model = controllerModelFactory.createControllerModel(controller.controllerGrip);
+      controller.controllerGrip.add(model);
+      threeScene.add(controller.controllerGrip);
+    });
+    return controller;
   });
 }
 
 async function initAR() {
   if (navigator.xr && await navigator.xr.isSessionSupported('immersive-ar')) {
-    xrSession;
     var arOverlay = document.querySelector(".aroverlay");
     // AR beenden
     document.querySelector(".aroverlay button.back").addEventListener("click", () => {
@@ -258,6 +164,7 @@ async function initAR() {
     var arButton = document.querySelector("button.icon.ar");
     arButton.style.display = "block";
     arButton.addEventListener("click", async () => {
+      // AR-Sitzung anfordern
       xrSession = await navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'], optionalFeatures: ['dom-overlay'], domOverlay: { root: arOverlay }});
       renderer.autoClear = false;
       renderer.xr.enabled = true;
@@ -273,10 +180,11 @@ async function initAR() {
         arOverlay.appendChild(document.querySelector("#playpage button.stepdown"));
       }
       var saveGame = SaveGameHelper.currentSaveGame;
-      currentModel.position.set(saveGame.x, saveGame.y, saveGame.z);
-      if (saveGame.rotation) currentModel.rotation.set(Math.PI, saveGame.rotation, 0); 
-      // Modell auf Originalgröße schrumpfen
-      rootGroup.scale.set(saveGame.scale, saveGame.scale, saveGame.scale);
+      // Ziel-Ring für Positionierung erstellen
+      xrRectile = new THREE.Mesh(new THREE.RingGeometry( 0.15, 0.2, 32 ).rotateX( - Math.PI / 2 ), new THREE.MeshBasicMaterial());
+      xrRectile.matrixAutoUpdate = false;
+      xrRectile.visible = false;
+      threeScene.add(xrRectile);
       // Controller für VR Headsets initialisieren
       initXRControllers();
     });
@@ -299,6 +207,7 @@ function handleControllerInput() {
       buttons: { trigger: rightGamePad.buttons[0].pressed, grip: rightGamePad.buttons[1].pressed, aButton: rightGamePad.buttons[4].pressed, bButton: rightGamePad.buttons[5].pressed }
     },
   };
+  /*
   // Änderung prüfen
   // Links
   if (controllersCurrently.left.axes.left && !controllersBefore.left.axes.left) { console.log("LEFT left"); Player.moveLeft(); }
@@ -318,7 +227,37 @@ function handleControllerInput() {
   if (controllersCurrently.right.buttons.grip && !controllersBefore.right.buttons.grip) { console.log("RIGHT grip"); }
   if (controllersCurrently.right.buttons.aButton && !controllersBefore.right.buttons.aButton) { console.log("RIGHT aButton"); Player.makeSmaller(); }
   if (controllersCurrently.right.buttons.bButton && !controllersBefore.right.buttons.bButton) { console.log("RIGHT bButton"); Player.makeBigger(); }
+  */
   controllersBefore = controllersCurrently;
+}
+
+// AR Marker zum Positionieren anzeigen und bewegen
+async function handleXRSession(frame) {
+  if (xrModelPlaced) return;
+  if (frame) {
+    xrLocalReferenceSpace = renderer.xr.getReferenceSpace();
+    if (!xrHitTestSourceRequested) {
+      var viewerSpace = await xrSession.requestReferenceSpace("viewer");
+      xrHitTestSource = await xrSession.requestHitTestSource({space: viewerSpace});
+      xrHitTestSourceRequested = true;
+    }
+    if (xrHitTestSource) {
+      var hitTestResults = frame.getHitTestResults(xrHitTestSource);
+      if (hitTestResults.length > 0) {
+        var hit = hitTestResults[0];
+        var pose = hit.getPose(xrLocalReferenceSpace);
+        xrRectile.visible = true;
+        xrRectile.matrix.fromArray(pose.transform.matrix);
+        xrRectile.matrix.decompose(currentModel.position);
+      } else {
+        xrRectile.visible = false;
+      }
+    }
+  }
+}
+
+function handleRotation() {
+  if (currentModel && currentRotation) currentModel.rotation.y = (currentModel.rotation.y + currentRotation) % (Math.PI * 2);
 }
 
 // Globales Objekt, welches den 3D Player beinhaltet und managt
@@ -360,12 +299,11 @@ const Player = {
     onWindowResize();
     // AR und XR vorbereiten
     initAR();
-    //initVR();
-    // Part Renderers vorbereiten
-    initPartRenderers();
     // Animation loop starten und Renderer-Größe ermitteln lassen
-    renderer.setAnimationLoop(function () {
+    renderer.setAnimationLoop(function (timestamp, frame) {
       handleControllerInput();
+      handleRotation();
+      if (xrSession) handleXRSession(frame);
       controls.update();
       renderer.render(threeScene, camera);
     });
@@ -381,35 +319,20 @@ const Player = {
       .setPartsLibraryPath('https://hilderonny.github.io/flat-ldraw-parts/')
       .load( modelUrl, function ( model ) {
       
-        for (var child of model.children) {
-          if (child.isGroup) {
-            child.userData.isRootPart = true;
-          }
-        }
-      
-        console.log(model);
-      
         currentModel = model;
         currentModel.modelUrl = modelUrl; // For localstorage
 
         // Convert from LDraw coordinates: rotate 180 degrees around OX
         currentModel.rotation.x = Math.PI;
       
-        rootGroup = new THREE.Group();
-        rootGroup.add(currentModel);
-        rootGroup.scale.multiplyScalar(.01);
+        currentModel.scale.multiplyScalar(.01);
 
-        threeScene.add(rootGroup);
+        threeScene.add(currentModel);
 
-        console.log(saveGame);
         currentStep = saveGame.step;
       
         updateModelVisibility();
       
-        const bbox = new THREE.Box3().setFromObject(currentModel);
-        const size = bbox.getSize( new THREE.Vector3() );
-        const radius = Math.max( size.x, Math.max( size.y, size.z ) ) * 0.5;
-
         document.querySelector('.progressbar').classList.add('invisible');
         onWindowResize(); // Muss aufgerufen werden, nachdem die Progressbar verschwunden ist
       
@@ -458,44 +381,17 @@ const Player = {
     }
   },
 
-  moveLeft: function() {
-    currentModel.position.x -= moveStep;
-    SaveGameHelper.currentSaveGame.x = currentModel.position.x;
-    SaveGameHelper.save();
-  },
-
-  moveRight: function() {
-    currentModel.position.x += moveStep;
-    SaveGameHelper.currentSaveGame.x = currentModel.position.x;
-    SaveGameHelper.save();
-  },
-
-  moveForward: function() {
-    currentModel.position.z -= moveStep;
-    SaveGameHelper.currentSaveGame.z = currentModel.position.z;
-    SaveGameHelper.save();
-  },
-
-  moveBackward: function() {
-    currentModel.position.z += moveStep;
-    SaveGameHelper.currentSaveGame.z = currentModel.position.z;
-    SaveGameHelper.save();
-  },
-
   moveUp: function() {
-    currentModel.position.y += moveStep;
-    SaveGameHelper.currentSaveGame.y = currentModel.position.y;
-    SaveGameHelper.save();
+    xrModelPlaced = false;
   },
 
   moveDown: function() {
-    currentModel.position.y -= moveStep;
-    SaveGameHelper.currentSaveGame.y = currentModel.position.y;
-    SaveGameHelper.save();
+    xrModelPlaced = true;
+    xrRectile.visible = false;
   },
 
   setScale: function(scale) {
-    rootGroup.scale.set(scale, scale, scale);
+    currentModel.scale.set(scale, scale, scale);
     SaveGameHelper.currentSaveGame.scale = scale;
     SaveGameHelper.save();
   },
@@ -506,6 +402,10 @@ const Player = {
 
   makeBigger: function() {
     Player.setScale(bigScale);
+  },
+  
+  setRotation: function(rotation) {
+    currentRotation = rotation;
   },
   
   rotateLeft: function() {

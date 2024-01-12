@@ -30,10 +30,10 @@
         document.querySelector("button.stepup").addEventListener("click", stepUp);
         document.querySelector("button.stepdown").addEventListener("click", stepDown);
         document.querySelector("button.lines").addEventListener("click", Player.toggleLines);
-        document.querySelector("button.left").addEventListener("click", Player.moveLeft);
-        document.querySelector("button.right").addEventListener("click", Player.moveRight);
-        document.querySelector("button.forward").addEventListener("click", Player.moveForward);
-        document.querySelector("button.backward").addEventListener("click", Player.moveBackward);
+        document.querySelector("button.left").addEventListener("touchstart", () => Player.setRotation(-.01));
+        document.querySelector("button.left").addEventListener("touchend", () => Player.setRotation(0));
+        document.querySelector("button.right").addEventListener("touchstart", () => Player.setRotation(.01));
+        document.querySelector("button.right").addEventListener("touchend", () => Player.setRotation(0));
         document.querySelector("button.up").addEventListener("click", Player.moveUp);
         document.querySelector("button.down").addEventListener("click", Player.moveDown);
         document.querySelector("button.smaller").addEventListener("click", Player.makeSmaller);
@@ -71,7 +71,6 @@
       <div class="canvas"></div>
       <div class="complete invisible"></div>
       <div class="stepcounter"><span class="currentstep">Loading ... </span>&nbsp;/&nbsp;<span class="numberofsteps">Please wait</span></div>
-      <div class="partbar"></div>
       <div class="toolbar">
         <button class="icon lines"></button>
         <div class="spacer"></div>
@@ -90,8 +89,6 @@
     <button class="icon down"></button>
     <button class="icon left"></button>
     <button class="icon right"></button>
-    <button class="icon forward"></button>
-    <button class="icon backward"></button>
 
     <button class="icon smaller"></button>
     <button class="icon bigger"></button>
