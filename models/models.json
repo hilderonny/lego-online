@@ -8,7 +8,13 @@
   {
     "id": "60312",
     "file": "models/ldraw/60312.ldr",
-    "name": "Polizeiauto",
+    "name": "Police car",
     "thumbnail": "images/thumbnails/60312.png"
+  },
+  {
+    "id": "Delorean",
+    "file": "models/ldraw/Delorean.ldr",
+    "name": "Time machine",
+    "thumbnail": "images/thumbnails/Delorean.png"
   }
 ]
